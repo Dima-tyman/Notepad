@@ -3,7 +3,7 @@ import datetime
 
 class Notepad:
 
-    def __init__(self, name, content=""):
+    def __init__(self, name="", content=""):
         date_init = datetime.datetime.now()
         self.id = date_init.__hash__()
         self.date_create = date_init

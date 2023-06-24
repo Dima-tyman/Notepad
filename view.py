@@ -1,4 +1,5 @@
 POSSIBLE_FILTER = ["name", "create", "modify"]
+tad_len = 15
 
 
 def show_notes(notes_list, filter_tag=POSSIBLE_FILTER[1]):
@@ -15,6 +16,7 @@ def show_notes(notes_list, filter_tag=POSSIBLE_FILTER[1]):
                 print(*sorted(notes_list, key=lambda note: note.date_create), sep='\n\t')
             elif filter_tag == POSSIBLE_FILTER[2]:
                 print(*sorted(notes_list, key=lambda note: note.date_modify), sep='\n\t')
+            print("END")
 
 
 def show_note(note_dict):
@@ -29,7 +31,6 @@ def show_note_info(note_dict):
     if not isinstance(note_dict, dict):
         print("ERROR(not dictionary)")
     else:
-        tad_len = 15
         print("NOTE INFO")
         print("NAME: ".rjust(tad_len) + note_dict.get("name"))
         print("ID: ".rjust(tad_len) + str(note_dict.get("id")))
