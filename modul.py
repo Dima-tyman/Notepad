@@ -49,7 +49,7 @@ def remove_note(notes_list_src: list, notes_list_rem: list):
 
 def remove_note_content(notes_list_rem: list):
     for note in notes_list_rem:
-        note.content = ""
+        note.modify("")
 
 
 def edit_note_content_f(notes_list: list, name_note: str):
@@ -59,7 +59,7 @@ def edit_note_content_f(notes_list: list, name_note: str):
             f.write(found_note.content)
         if input("Open file edit.txt and edit content.\nSave content? (y): ").lower() == 'y':
             with open("edit.txt", 'r') as f:
-                found_note.content = f.read()
+                found_note.modify(f.read())
         with open("edit.txt", 'w') as f:
             f.write("")
     else:

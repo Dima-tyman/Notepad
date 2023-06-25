@@ -1,23 +1,20 @@
 from modul import *
-from Notepad import Notepad
 from view import *
+from convert import *
 
 # Работа с файлом
 # Вывод с выборкой по дате
+# Выбор файла при изменении
 
-current_notepad = [
-    Notepad("Text", "Some text in more words"),
-    Notepad("a", "text"),
-    Notepad("b", "new test"),
-    Notepad("Test note", "Значимость этих проблем настолько очевидна, что сложившаяся структура организации "
-                         "позволяет оценить значение модели развития! Не следует, однако, забывать о том, "
-                         "что реализация намеченного плана развития позволяет оценить значение направлений "
-                         "прогрессивного развития. Повседневная практика показывает, что постоянное "
-                         "информационно-техническое обеспечение нашей деятельности позволяет оценить значение модели "
-                         "развития")
-]
 
-COMMANDS = ["exit", "show", "add", "remove", "edit", "help"]
+def new_file(new_file_name):
+    global file_name, current_notepad, saved
+    file_name = new_file_name
+    current_notepad = open_file(new_file_name)
+    saved = True
+
+
+COMMANDS = ["exit", "show", "add", "remove", "edit", "open", "save", "new"]
 FLAGS = {"exit": ['y', 'n', 's'],  # y - not confirm, n - not save, s - save
          "show": ['f', 'i'],  # f - filter, i - info
          "add": ['c', 'e'],  # c - content, e - empty(auto)
@@ -25,7 +22,10 @@ FLAGS = {"exit": ['y', 'n', 's'],  # y - not confirm, n - not save, s - save
          "edit": ['r', 'o', 'f']  # r - rename, o - overwrite, f - file
          }
 
+current_notepad = []
+file_name = "test"
 saved = True
+
 
 print("Welcome to Notepad!")
 print("Command list:", ', '.join(COMMANDS))
@@ -135,6 +135,7 @@ while True:
 
         current_notepad.append(Notepad(new_note_name, new_note_content))
         print("Added new note " + '"' + current_notepad[-1].name + '"!')
+        saved = False
 
     # REMOVE [notes_name] - remove notes with notes_name
     # -c [notes_name] - remove content at notes_name
@@ -150,8 +151,10 @@ while True:
                 modify_list_for_remove(found_notes, note_index)
             if 'c' in flags:
                 remove_note_content(found_notes)
+                saved = False
             else:
                 remove_note(current_notepad, found_notes)
+                saved = False
 
     # EDIT [note_name] - edit note with note_name
     # -r [note_name] - new interactive name at note_name
@@ -167,6 +170,7 @@ while True:
         if not options[0]:
             print("Not found option. Not edit.")
             continue
+
         found_note = find_note(current_notepad, options[0])
         if not found_note:
             print("Note not found!")
@@ -186,7 +190,7 @@ while True:
                 options.append("")
                 options[2] = input("Entry new note content: ")
             found_note.name = options[1]
-            found_note.content = options[2]
+            found_note.modify(options[2])
 
         elif 'r' in flags or 'o' in flags:
             if len(options) < 2:
@@ -195,12 +199,42 @@ while True:
                 print("Not found option. Not edit.")
                 continue
             if 'r' in flags:
-                find_note(current_notepad, options[0]).name = options[1]
+                found_note.name = options[1]
             else:
-                find_note(current_notepad, options[0]).content = options[1]
+                found_note.modify(options[1])
 
         else:
             new_add_content = input("Enter what to add to the content: ") or ""
-            found_note.content = found_note.content + new_add_content
+            found_note.modify(found_note.content + new_add_content)
 
         print("Note was edit!")
+        saved = False
+
+    # OPEN [file_name] - open new notepad
+
+    elif command == COMMANDS[5]:
+        if not options:
+            options.append(input("Entry file name: "))
+        if not options:
+            print("Not file name!")
+            continue
+
+        if not saved:
+            if input("Save current file? (n - no): ").lower() == 'n':
+                new_file(options[0])
+            else:
+                save_file(file_name)
+                new_file(options[0])
+        else:
+            new_file(options[0])
+
+    # SAVE [file_name] - save as file_name
+    # SAVE - save in current file (if is)
+
+    elif command == COMMANDS[6]:
+        pass
+
+    # NEW [file_name] - create for edit new notepad
+
+    elif command == COMMANDS[7]:
+        pass
