@@ -1,4 +1,4 @@
-POSSIBLE_FILTER = ["name", "create", "modify"]
+POSSIBLE_FILTER = ["name", "create", "modify", "none"]
 tad_len = 15
 
 
@@ -16,6 +16,8 @@ def show_notes(notes_list, filter_tag=POSSIBLE_FILTER[1]):
                 print(*sorted(notes_list, key=lambda note: note.date_create), sep='\n\t')
             elif filter_tag == POSSIBLE_FILTER[2]:
                 print(*sorted(notes_list, key=lambda note: note.date_modify), sep='\n\t')
+            elif filter_tag == POSSIBLE_FILTER[3]:
+                print(*notes_list, sep='\n\t')
             print("END")
 
 
@@ -34,6 +36,6 @@ def show_note_info(note_dict):
         print("NOTE INFO")
         print("NAME: ".rjust(tad_len) + note_dict.get("name"))
         print("ID: ".rjust(tad_len) + str(note_dict.get("id")))
-        print("DATE CREATE: ".rjust(tad_len) + str(note_dict.get("date_create")))
-        print("DATE MODIFY: ".rjust(tad_len) + str(note_dict.get("date_modify")))
+        print("DATE CREATE: ".rjust(tad_len) + note_dict.get("date_create"))
+        print("DATE MODIFY: ".rjust(tad_len) + note_dict.get("date_modify"))
         print("SIZE: ".rjust(tad_len) + str(len(note_dict.get("content"))))

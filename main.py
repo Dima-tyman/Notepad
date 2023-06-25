@@ -2,19 +2,27 @@ from modul import *
 from view import *
 from convert import *
 
-# Работа с файлом
 # Вывод с выборкой по дате
 # Выбор файла при изменении
+
+
+def open_file(open_file_name):
+    global file_name, current_notepad, saved
+    file_name = open_file_name
+    current_notepad = open_file_json(open_file_name)
+    saved = True
+    print("Open new notepad - " + file_name)
 
 
 def new_file(new_file_name):
     global file_name, current_notepad, saved
     file_name = new_file_name
-    current_notepad = open_file(new_file_name)
-    saved = True
+    current_notepad.clear()
+    saved = False
+    print("New notepad - " + file_name)
 
 
-COMMANDS = ["exit", "show", "add", "remove", "edit", "open", "save", "new"]
+COMMANDS = ["exit", "show", "add", "remove", "edit", "open", "save", "new", "status"]
 FLAGS = {"exit": ['y', 'n', 's'],  # y - not confirm, n - not save, s - save
          "show": ['f', 'i'],  # f - filter, i - info
          "add": ['c', 'e'],  # c - content, e - empty(auto)
@@ -23,7 +31,7 @@ FLAGS = {"exit": ['y', 'n', 's'],  # y - not confirm, n - not save, s - save
          }
 
 current_notepad = []
-file_name = "test"
+file_name = "new"
 saved = True
 
 
@@ -58,9 +66,9 @@ while True:
                 if 'n' in flags:
                     pass
                 elif 's' in flags:
-                    pass  # save
+                    save_file_json(file_name, current_notepad)
                 elif input("Save notes? (y/n): ").lower() in ["y", "yes"]:
-                    pass  # save
+                    save_file_json(file_name, current_notepad)
             print("Buy!")
             break
         else:
@@ -69,9 +77,9 @@ while True:
                     if 'n' in flags:
                         pass
                     elif 's' in flags:
-                        pass  # save
+                        save_file_json(file_name, current_notepad)
                     elif input("Save notes? (y/n): ").lower() in ["y", "yes"]:
-                        pass  # save
+                        save_file_json(file_name, current_notepad)
                 print("Buy!")
                 break
 
@@ -214,27 +222,53 @@ while True:
 
     elif command == COMMANDS[5]:
         if not options:
-            options.append(input("Entry file name: "))
+            options.append(input("Entry file name: ").strip())
         if not options:
             print("Not file name!")
             continue
 
         if not saved:
             if input("Save current file? (n - no): ").lower() == 'n':
-                new_file(options[0])
+                open_file(options[0])
             else:
-                save_file(file_name)
-                new_file(options[0])
+                save_file_json(file_name, current_notepad)
+                open_file(options[0])
         else:
-            new_file(options[0])
+            open_file(options[0])
 
     # SAVE [file_name] - save as file_name
     # SAVE - save in current file (if is)
 
     elif command == COMMANDS[6]:
-        pass
+        if not options:
+            save_file_json(file_name, current_notepad)
+        else:
+            save_file_json(options[0], current_notepad)
+            if input("Open new file? (y -yes): ").lower() == 'y':
+                open_file(options[0])
 
     # NEW [file_name] - create for edit new notepad
 
     elif command == COMMANDS[7]:
-        pass
+        if not options:
+            options.append(input("Entry file name: ").strip())
+        if not options:
+            print("Not file name!")
+            continue
+        if saved:
+            new_file(options[0])
+        else:
+            if input("Save current file? (n - no): ").lower() == 'n':
+                new_file(options[0])
+            else:
+                save_file_json(file_name, current_notepad)
+                new_file(options[0])
+
+    # STATUS - show current file and saved status
+
+    elif command == COMMANDS[8]:
+        print("FILE - " + file_name, end='')
+        if saved:
+            print(" (SAVE)")
+        else:
+            print(" (NOT SAVE)")

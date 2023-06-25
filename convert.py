@@ -2,7 +2,7 @@ import json
 from Notepad import Notepad
 
 
-def open_file(file_name):
+def open_file_json(file_name):
     new_note_list = []
     with open(file_name + ".json", 'r') as f:
         new_dict_list = json.load(f)
@@ -17,5 +17,13 @@ def open_file(file_name):
     return new_note_list
 
 
-def save_file(file_name):
-    pass
+def save_file_json(file_name, note_list: list):
+    dict_list = []
+    note_list.sort(key=lambda no: no.date_create)
+
+    for note in note_list:
+        dict_list.append(note.get_dictionary())
+
+    with open(file_name + ".json", 'w') as f:
+        json.dump(dict_list, f)
+        print("File saved!")

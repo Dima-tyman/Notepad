@@ -39,5 +39,5 @@ class Notepad:
         return {"id": self.id,
                 "name": self.name,
                 "content": self.content,
-                "date_create": self.date_create,
-                "date_modify": self.date_modify}
+                "date_create": str(self.date_create),
+                "date_modify": str(self.date_modify)}
