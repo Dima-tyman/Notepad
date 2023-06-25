@@ -25,6 +25,18 @@ def modify_list_for_remove(remove_list: list, non_remove_index: str):
             remove_list.pop(i)
 
 
+def modify_list_for_edit(remove_list: list, non_remove_index: str):
+    index = non_remove_index.split()
+    index_num = []
+    for i in index:
+        if i.isdigit() and (len(remove_list) >= int(i) > 0):
+            index_num.append(int(i) - 1)
+
+    for i in range(len(remove_list) - 1, -1, -1):
+        if i not in index_num:
+            remove_list.pop(i)
+
+
 def find_notes(notes_list: list, names_list: list):
     found_notes = []
 
@@ -52,15 +64,11 @@ def remove_note_content(notes_list_rem: list):
         note.modify("")
 
 
-def edit_note_content_f(notes_list: list, name_note: str):
-    found_note = find_note(notes_list, name_note)
-    if found_note:
-        with open("edit.txt", 'w') as f:
-            f.write(found_note.content)
-        if input("Open file edit.txt and edit content.\nSave content? (y): ").lower() == 'y':
-            with open("edit.txt", 'r') as f:
-                found_note.modify(f.read())
-        with open("edit.txt", 'w') as f:
-            f.write("")
-    else:
-        print("Note not found!")
+def edit_note_content_f(found_note):
+    with open("edit.txt", 'w') as f:
+        f.write(found_note.content)
+    if input("Open file edit.txt and edit content.\nSave content? (y): ").lower() == 'y':
+        with open("edit.txt", 'r') as f:
+            found_note.modify(f.read())
+    with open("edit.txt", 'w') as f:
+        f.write("")

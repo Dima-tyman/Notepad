@@ -3,7 +3,6 @@ from view import *
 from convert import *
 
 # Вывод с выборкой по дате
-# Выбор файла при изменении
 
 
 def open_file(open_file_name):
@@ -179,13 +178,27 @@ while True:
             print("Not found option. Not edit.")
             continue
 
-        found_note = find_note(current_notepad, options[0])
-        if not found_note:
+        found_notes = find_notes(current_notepad, options)
+        if not found_notes:
             print("Note not found!")
             continue
+        elif len(found_notes) > 1:
+            show_notes(found_notes)
+            note_index = input("Enter num note for edit: ")
+            if not note_index.isdigit():
+                print("You didn't enter a number!")
+                continue
+            note_index = int(note_index) - 1
+            if note_index in range(0, len(found_notes)):
+                found_note = found_notes[note_index]
+            else:
+                print("Num note not fount!")
+                continue
+        else:
+            found_note = found_notes[0]
 
         if 'f' in flags:
-            edit_note_content_f(current_notepad, options[0])
+            edit_note_content_f(found_note)
 
         elif 'r' in flags and 'o' in flags:
             if len(options) < 2:
@@ -242,8 +255,10 @@ while True:
     elif command == COMMANDS[6]:
         if not options:
             save_file_json(file_name, current_notepad)
+            saved = True
         else:
             save_file_json(options[0], current_notepad)
+            saved = True
             if input("Open new file? (y -yes): ").lower() == 'y':
                 open_file(options[0])
 
