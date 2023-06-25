@@ -2,6 +2,10 @@ from modul import *
 from Notepad import Notepad
 from view import *
 
+# Работа с файлом
+# Вывод с выборкой по дате
+# Одинаковые имена
+
 current_notepad = [
     Notepad("Text", "Some text in more words"),
     Notepad("a", "text"),
@@ -15,58 +19,116 @@ current_notepad = [
 ]
 
 COMMANDS = ["exit", "show", "add", "remove", "edit", "help"]
+FLAGS = {"exit": ['y', 'n', 's'],  # y - not confirm, n - not save, s - save
+         "show": ['f', 'i'],  # f - filter, i - info
+         "add": ['c', 'e'],  # c - content, e - empty(auto)
+         "remove": ['c'],  # c - content
+         "edit": ['r', 'o', 'f']  # r - rename, o - overwrite, f - file
+         }
+
+saved = True
 
 print("Welcome to Notepad!")
-print("Current command:", ', '.join(COMMANDS))
+print("Command list:", ', '.join(COMMANDS))
 
 while True:
-    print("Enter command: ", end='')
 
-    input_command = input().split()
     command = ""
+    flags = ""
     options = []
-    if input_command:
-        command = input_command[0].lower()
-        if len(input_command) > 1:
-            options = input_command[1:]
 
-    # EXIT - with confirm and check save notepad
+    input_command = input("Enter command: ").strip()
+    if not input_command:
+        continue
+    if ' ' in input_command:
+        parsed_command = parse_command(input_command)
+        command = parsed_command[0]
+        flags = parsed_command[1]
+        options = parsed_command[2]
+    else:
+        command = input_command.lower()
+
+    # EXIT - exit with confirm and check save notepad
+    # -y - not confirm exit (no if file not saved!)
+    # -n - not save (if file not saved)
+    # -s - auto save (if file not saved)
 
     if command == COMMANDS[0]:
-        print("Really exit? (y/n): ", end='')
-        if input().lower() in ["y", "yes"]:
+        if 'y' in flags:
+            if not saved:
+                if 'n' in flags:
+                    pass
+                elif 's' in flags:
+                    pass  # save
+                elif input("Save notes? (y/n): ").lower() in ["y", "yes"]:
+                    pass  # save
             print("Buy!")
             break
+        else:
+            if input("Really exit? (y/n): ").lower() in ["y", "yes"]:
+                if not saved:
+                    if 'n' in flags:
+                        pass
+                    elif 's' in flags:
+                        pass  # save
+                    elif input("Save notes? (y/n): ").lower() in ["y", "yes"]:
+                        pass  # save
+                print("Buy!")
+                break
 
-    # SHOW - all notes in current notepad
-    # SHOW [note_name] - selected note
+    # SHOW - show all notes
+    # SHOW [notes_name] - show selected notes_name
+    # -i [notes_name] - show info selected notes_name
+    # -f [filter] - show all notes with filter
 
     elif command == COMMANDS[1]:
-        if not options:
-            show_notes(current_notepad)
-        else:
-            found_note = find_note(current_notepad, options)
-            if not found_note:
-                print("Note not found!")
-            for note in found_note:
-                show_note(note.get_dictionary())
+        if 'f' not in flags:
+            if not options:
+                show_notes(current_notepad)
+            else:
+                found_note = find_notes(current_notepad, options)
+                if not found_note:
+                    print("Note not found!")
+                if 'i' in flags:
+                    for note in found_note:
+                        show_note_info(note.get_dictionary())
+                else:
+                    for note in found_note:
+                        show_note(note.get_dictionary())
+        elif 'f' in flags:
+            if not options:
+                print("Not filter! Filter list: " + ', '.join(POSSIBLE_FILTER) + '.')
+            else:
+                show_notes(current_notepad, options[0])
 
-    # ADD - new note in current notepad (interactive)
-    # ADD [note_name] - new note with note_name
-    # ADD [note_name] [content] - new note with note_name and content
+    # ADD - add new note full interactive
+    # ADD [note_name] - add new note with note_name and interactive content
+    # ADD [note_name] [content] - add new note with note_name and content
+    # -c [content] - add new note with content and interactive name
+    # -e - add new note without content and with auto name
 
     elif command == COMMANDS[2]:
         new_note_name = ""
         new_note_content = ""
-        if not options:
+
+        if 'e' in flags:
+            pass
+
+        elif not options:
             new_note_name = input("Enter name for new note: ").strip()
             if not new_note_name:
                 print("You entered empty name. The name is generated automatically!")
             new_note_content = input("Enter content for new note:\n")
 
         elif len(options) == 1:
-            new_note_name = options[0]
-            new_note_content = input("Enter content for new note:\n")
+            if 'c' in flags:
+                new_note_name = input("Enter name for new note: ").strip()
+                if not new_note_name:
+                    print("You entered empty name. The name is generated automatically!")
+                new_note_content = options[0]
+            else:
+                new_note_name = options[0]
+                new_note_content = input("Enter content for new note:\n")
 
         elif len(options) > 1:
             new_note_name = options[0]
@@ -75,18 +137,66 @@ while True:
         current_notepad.append(Notepad(new_note_name, new_note_content))
         print("Added new note " + '"' + current_notepad[-1].name + '"!')
 
-    # REMOVE [note_name] - note in current notepad with note_name
+    # REMOVE [notes_name] - remove notes with notes_name
+    # -c [notes_name] - remove content at notes_name
 
     elif command == COMMANDS[3]:
         if not options:
             options.extend(input("Entry note name for remove: ").split())
         if options:
-            remove_note(current_notepad, options)
+            if 'c' in flags:
+                remove_note_content(current_notepad, options)
+            else:
+                remove_note(current_notepad, options)
 
-    # EDIT [note_name] - note in current notepad with note_name
+    # EDIT [note_name] - edit note with note_name
+    # -r [note_name] - new interactive name at note_name
+    # -r [note_name] [new_name] - new name at note_name with new_name
+    # -o [note_name] - new interactive content at note_name
+    # -o [note_name] [new_content] - new content at note_name with new_content
+    # -ro [note_name] [new_name] [new_content] - **
+    # -f [note_name] - edit content note_name in file
 
     elif command == COMMANDS[4]:
         if not options:
-            options.extend(input("Entry note name for edit: ").split())
-        if options:
-            pass
+            options.append(input("Entry note name: ").strip())
+        if not options[0]:
+            print("Not found option. Not edit.")
+            continue
+        edit_note = find_note(current_notepad, options[0])
+        if not edit_note:
+            print("Note not found!")
+            continue
+
+        if 'f' in flags:
+            edit_note_content(current_notepad, options[0])
+
+        elif 'r' in flags and 'o' in flags:
+            if len(options) < 2:
+                options.append(input("Entry new note name: ").strip())
+                if not options[1]:
+                    print("Not found option. Not edit.")
+                    continue
+                options.append(input("Entry new note content: ")) or ""
+            if len(options) < 3:
+                options.append("")
+                options[2] = input("Entry new note content: ")
+            edit_note.name = options[1]
+            edit_note.content = options[2]
+
+        elif 'r' in flags or 'o' in flags:
+            if len(options) < 2:
+                options.append(input("Entry new note name/content: "))
+            if not options[1]:
+                print("Not found option. Not edit.")
+                continue
+            if 'r' in flags:
+                find_note(current_notepad, options[0]).name = options[1]
+            else:
+                find_note(current_notepad, options[0]).content = options[1]
+
+        else:
+            new_add_content = input("Enter what to add to the content: ") or ""
+            edit_note.content = edit_note.content + new_add_content
+
+        print("Note was edit!")
