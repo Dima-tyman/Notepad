@@ -2,8 +2,6 @@ from modul import *
 from view import *
 from convert import *
 
-# Вывод с выборкой по дате
-
 
 def open_file(open_file_name):
     global file_name, current_notepad, saved
@@ -23,7 +21,7 @@ def new_file(new_file_name):
 
 COMMANDS = ["exit", "show", "add", "remove", "edit", "open", "save", "new", "status"]
 FLAGS = {"exit": ['y', 'n', 's'],  # y - not confirm, n - not save, s - save
-         "show": ['f', 'i'],  # f - filter, i - info
+         "show": ['f', 'i', 'd'],  # f - filter, i - info, d - date filter
          "add": ['c', 'e'],  # c - content, e - empty(auto)
          "remove": ['c'],  # c - content
          "edit": ['r', 'o', 'f']  # r - rename, o - overwrite, f - file
@@ -84,15 +82,24 @@ while True:
 
     # SHOW - show all notes
     # SHOW [notes_name] - show selected notes_name
+    # SHOW -d [date_start] [date_end] - show selected notes_name
     # -i [notes_name] - show info selected notes_name
     # -f [filter] - show all notes with filter
 
     elif command == COMMANDS[1]:
+        filtered_notepad = []
+        if 'd' in flags and len(options) > 1:
+            filtered_notepad = filter_at_date(current_notepad, options[0], options[1])
+            options.remove(options[1])
+            options.remove(options[0])
+        else:
+            filtered_notepad = current_notepad
+
         if 'f' not in flags:
             if not options:
-                show_notes(current_notepad)
+                show_notes(filtered_notepad)
             else:
-                found_note = find_notes(current_notepad, options)
+                found_note = find_notes(filtered_notepad, options)
                 if not found_note:
                     print("Note not found!")
                 if 'i' in flags:
@@ -105,7 +112,7 @@ while True:
             if not options:
                 print("Not filter! Filter list: " + ', '.join(POSSIBLE_FILTER) + '.')
             else:
-                show_notes(current_notepad, options[0])
+                show_notes(filtered_notepad, filter_tag=options[0])
 
     # ADD - add new note full interactive
     # ADD [note_name] - add new note with note_name and interactive content

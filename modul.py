@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def parse_command(input_command: str):
     command_list = input_command.split()
     command = command_list.pop(0).lower()
@@ -5,7 +8,7 @@ def parse_command(input_command: str):
     flags = ""
     options = []
     for com in command_list:
-        if '-' in com and len(com) > 1:
+        if '-' == com[0] and len(com) > 1:
             flags = flags + com[1:]
         else:
             options.append(com)
@@ -72,3 +75,25 @@ def edit_note_content_f(found_note):
             found_note.modify(f.read())
     with open("edit.txt", 'w') as f:
         f.write("")
+
+
+def filter_at_date(notes_list: list, date_start, date_end):
+    filtered_notepad = []
+    notes_list.sort(key=lambda no: no.date_create)
+    if check_format_date(date_start) and check_format_date(date_end):
+        start = datetime.strptime(date_start, '%Y-%m-%d')
+        end = datetime.strptime(date_end, '%Y-%m-%d')
+        for note in notes_list:
+            if start <= note.date_create <= end:
+                filtered_notepad.append(note)
+    else:
+        print("Date format is not correct!")
+        return notes_list
+    return filtered_notepad
+
+
+def check_format_date(date: str):
+    try:
+        return isinstance(datetime.strptime(date, '%Y-%m-%d'), datetime)
+    except:
+        return False

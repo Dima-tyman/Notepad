@@ -3,13 +3,13 @@ from _datetime import datetime
 
 class Notepad:
 
-    def __init__(self, name="", content="", id=0, date_create="", date_modify=""):
+    def __init__(self, name="", content="", note_id=0, date_create="", date_modify=""):
         date_init = datetime.now()
 
-        if id == 0:
+        if note_id == 0:
             self.id = date_init.__hash__()
         else:
-            self.id = id
+            self.id = note_id
 
         if date_create == "":
             self.date_create = date_init
