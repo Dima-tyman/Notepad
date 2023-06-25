@@ -13,6 +13,18 @@ def parse_command(input_command: str):
     return [command, flags, options]
 
 
+def modify_list_for_remove(remove_list: list, non_remove_index: str):
+    index = non_remove_index.split()
+    index_num = []
+    for i in index:
+        if i.isdigit() and (len(remove_list) >= int(i) > 0):
+            index_num.append(int(i) - 1)
+
+    for i in range(len(remove_list) - 1, -1, -1):
+        if i not in index_num:
+            remove_list.pop(i)
+
+
 def find_notes(notes_list: list, names_list: list):
     found_notes = []
 
@@ -30,21 +42,17 @@ def find_note(notes_list: list, name_note: str):
             return note
 
 
-def remove_note(notes_list: list, names_list: list):
-    found_note = find_notes(notes_list, names_list)
-
-    for note in found_note:
-        notes_list.remove(note)
+def remove_note(notes_list_src: list, notes_list_rem: list):
+    for note in notes_list_rem:
+        notes_list_src.remove(note)
 
 
-def remove_note_content(notes_list: list, names_list: list):
-    found_note = find_notes(notes_list, names_list)
-
-    for note in found_note:
+def remove_note_content(notes_list_rem: list):
+    for note in notes_list_rem:
         note.content = ""
 
 
-def edit_note_content(notes_list: list, name_note: str):
+def edit_note_content_f(notes_list: list, name_note: str):
     found_note = find_note(notes_list, name_note)
     if found_note:
         with open("edit.txt", 'w') as f:

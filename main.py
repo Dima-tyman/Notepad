@@ -4,7 +4,6 @@ from view import *
 
 # Работа с файлом
 # Вывод с выборкой по дате
-# Одинаковые имена
 
 current_notepad = [
     Notepad("Text", "Some text in more words"),
@@ -144,10 +143,15 @@ while True:
         if not options:
             options.extend(input("Entry note name for remove: ").split())
         if options:
+            found_notes = find_notes(current_notepad, options)
+            if len(found_notes) > len(options):
+                show_notes(found_notes)
+                note_index = input("Enter nums notes for remove (sep 'space'): ")
+                modify_list_for_remove(found_notes, note_index)
             if 'c' in flags:
-                remove_note_content(current_notepad, options)
+                remove_note_content(found_notes)
             else:
-                remove_note(current_notepad, options)
+                remove_note(current_notepad, found_notes)
 
     # EDIT [note_name] - edit note with note_name
     # -r [note_name] - new interactive name at note_name
@@ -163,13 +167,13 @@ while True:
         if not options[0]:
             print("Not found option. Not edit.")
             continue
-        edit_note = find_note(current_notepad, options[0])
-        if not edit_note:
+        found_note = find_note(current_notepad, options[0])
+        if not found_note:
             print("Note not found!")
             continue
 
         if 'f' in flags:
-            edit_note_content(current_notepad, options[0])
+            edit_note_content_f(current_notepad, options[0])
 
         elif 'r' in flags and 'o' in flags:
             if len(options) < 2:
@@ -181,8 +185,8 @@ while True:
             if len(options) < 3:
                 options.append("")
                 options[2] = input("Entry new note content: ")
-            edit_note.name = options[1]
-            edit_note.content = options[2]
+            found_note.name = options[1]
+            found_note.content = options[2]
 
         elif 'r' in flags or 'o' in flags:
             if len(options) < 2:
@@ -197,6 +201,6 @@ while True:
 
         else:
             new_add_content = input("Enter what to add to the content: ") or ""
-            edit_note.content = edit_note.content + new_add_content
+            found_note.content = found_note.content + new_add_content
 
         print("Note was edit!")
